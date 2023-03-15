@@ -2,17 +2,20 @@
 	"extends": ["prettier"],
 	"plugins": ["unused-imports"],
 	"rules": {
-		"import/order": ["warn", {
-			"groups": [
-				["builtin", "external"],
-				"internal",
-				["parent", "sibling", "index"],
-				"type"
-			],
-			"newlines-between": "always",
-			"alphabetize": {"order": "asc"}
-		}],
+		"import/order": [
+			"warn",
+			{
+				"groups": [
+					["builtin", "external"],
+					"internal",
+					["parent", "sibling", "index"],
+					"type"
+				],
+				"newlines-between": "always",
+				"alphabetize": { "order": "asc" }
+			}
+		],
 		"unused-imports/no-unused-imports": "error"
 	},
-	"ignorePatterns": []
+	"ignorePatterns": ["bin/*.js"]
 }

@@ -1,24 +1,27 @@
 import 'zx/globals';
 import { createHash } from 'node:crypto';
+import { error, showHelpAndExit } from 'lib/log';
 
 const email = argv._[0];
 
 if (!email) {
-	echo('Generates a secure email: domain [-c] (copy to clipboard)');
-	process.exit(1);
+	showHelpAndExit(
+		'Generates a secure email: domain [-c]',
+		'',
+		'Flags:',
+		' c: Copies output to clipboard using pbcopy',
+	);
 }
 
 const domain = argv.domain ?? process.env.EMAIL_DOMAIN;
 if (!domain) {
-	echo('EMAIL_DOMAIN env var not set');
-	process.exit(1);
+	error('EMAIL_DOMAIN env var not set');
 }
 let secret;
 try {
 	secret = await fs.readFile(path.resolve(os.homedir(), '.email'));
 } catch (err) {
-	echo('Could not get secret');
-	process.exit(1);
+	error('Could not get secret');
 }
 
 const hash = createHash('md5')
@@ -33,5 +36,3 @@ if (argv.p) {
 } else {
 	echo(output);
 }
-
-export {};
