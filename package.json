@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"build": "node build.mjs",
+		"build": "esbuild src/*.ts --bundle --outdir=bin --outbase=src --platform=node --format=esm --banner:js=\"#!/usr/bin/env zx\" --external:zx",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
