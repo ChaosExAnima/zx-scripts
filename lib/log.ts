@@ -1,5 +1,11 @@
 import 'zx/globals';
 
+export function debug(...text: unknown[]) {
+	if (argv.v || argv.verbose) {
+		echo(chalk.gray('Debug: ', ...text));
+	}
+}
+
 export function line() {
 	echo``;
 }
@@ -12,7 +18,10 @@ export function multiline(...strings: (string | string[])[]) {
 	echo(strings.flat().join('\n'));
 }
 
-export function error(message: string, code = 1) {
+export function error(message: any, code = 1) {
+	if (message instanceof Error) {
+		message = message.message;
+	}
 	echo`${chalk.bold.red('Error:')} ${message}`;
 	process.exit(code);
 }
