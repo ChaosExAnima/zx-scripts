@@ -1,7 +1,6 @@
 import 'zx/globals';
 import { loadEnvVars } from 'lib/env';
 import { showHelpAndExit } from 'lib/log';
-import { spinner } from 'zx';
 
 $.verbose = false;
 

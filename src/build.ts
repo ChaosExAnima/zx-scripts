@@ -1,4 +1,3 @@
-import 'zx/globals';
 import path from 'node:path';
 import { bold, error, showHelpAndExit } from 'lib/log';
 

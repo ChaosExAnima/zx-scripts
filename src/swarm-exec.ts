@@ -1,8 +1,6 @@
 import { error, showHelpAndExit } from 'lib/log';
-import { spinner } from 'zx';
-import 'zx/globals';
 
-const args: string[] = argv._;
+const args = argv._;
 
 $.verbose = false;
 
@@ -19,7 +17,7 @@ if (process.env.DOCKER_CONTEXT) {
 }
 const containers = await spinner('Getting services', () =>
 	listToArray(
-		argv.$`docker service ps $(docker service ls -q) --format "{{.Name}}.{{.ID}}" --no-trunc -f "desired-state=running"`,
+		$`docker service ps $(docker service ls -q) --format "{{.Name}}.{{.ID}}" --no-trunc -f "desired-state=running"`,
 	),
 );
 const services = containers.map((container) => container.split('.')[0]);
@@ -38,14 +36,6 @@ if (!services.includes(serviceName)) {
 	error(`Unknown service: ${serviceName}`);
 }
 
-const psArgs = [
-	'-f',
-	'desired-state=running',
-	'--format',
-	'{{.Name}}.{{.ID}}',
-	'--no-trunc',
-	serviceName,
-] as const;
 const containerName = containers.find((container) =>
 	container.startsWith(serviceName),
 );

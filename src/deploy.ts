@@ -1,4 +1,3 @@
-import 'zx/globals';
 import path from 'path';
 import fs from 'fs/promises';
 import { bold, line, showHelpAndExit } from 'lib/log';

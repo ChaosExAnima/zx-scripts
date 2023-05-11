@@ -1,5 +1,3 @@
-import 'zx/globals';
-
 export function debug(...text: unknown[]) {
 	if (argv.v || argv.verbose) {
 		echo(chalk.gray('Debug: ', ...text));

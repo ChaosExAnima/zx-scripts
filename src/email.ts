@@ -1,4 +1,3 @@
-import 'zx/globals';
 import { createHash } from 'node:crypto';
 import { error, showHelpAndExit } from 'lib/log';
 import { loadSecret } from 'lib/env';
