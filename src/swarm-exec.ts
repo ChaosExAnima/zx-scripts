@@ -1,7 +1,10 @@
 import { error, showHelpAndExit } from 'lib/log';
+import { spinner } from 'zx';
 import 'zx/globals';
 
-const args = argv._;
+const args: string[] = argv._;
+
+$.verbose = false;
 
 async function listToArray(cmd: string | ProcessPromise) {
 	const list = typeof cmd === 'string' ? cmd : (await cmd).toString();
@@ -11,10 +14,15 @@ async function listToArray(cmd: string | ProcessPromise) {
 		.filter(Boolean);
 }
 
-await $`docker context use central`.quiet();
-const services = await listToArray(
-	$`docker service ls --format "{{.Name}}"`.quiet(),
+if (process.env.DOCKER_CONTEXT) {
+	await $`docker context use ${process.env.DOCKER_CONTEXT}`;
+}
+const containers = await spinner('Getting services', () =>
+	listToArray(
+		argv.$`docker service ps $(docker service ls -q) --format "{{.Name}}.{{.ID}}" --no-trunc -f "desired-state=running"`,
+	),
 );
+const services = containers.map((container) => container.split('.')[0]);
 
 if (args.length < 2) {
 	showHelpAndExit(
@@ -38,9 +46,15 @@ const psArgs = [
 	'--no-trunc',
 	serviceName,
 ] as const;
-const containerNames = await listToArray($`docker service ps ${psArgs}`);
-if (containerNames.length !== 1) {
+const containerName = containers.find((container) =>
+	container.startsWith(serviceName),
+);
+// const containerNames = await spinner('Finding container', () =>
+// 	listToArray($`docker service ps ${psArgs}`),
+// );
+if (!containerName) {
 	error('Got wrong number of containers');
 }
 
-await $`docker container exec -it ${containerNames[0]} ${args.slice(1)}`;
+$.verbose = true;
+await $`docker container exec -it ${containerName} ${args.slice(1)}`;

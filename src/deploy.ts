@@ -1,5 +1,6 @@
 import 'zx/globals';
 import path from 'path';
+import fs from 'fs/promises';
 import { bold, line, showHelpAndExit } from 'lib/log';
 import { loadEnvVars } from 'lib/env';
 
@@ -15,7 +16,7 @@ async function getStackConfigDir(stack: string) {
 	}
 }
 
-const args = argv._;
+const args: string[] = argv._;
 const shouldDelete = (argv.d || argv.delete) ?? false;
 const stacks = (await fs.readdir(cwd))
 	.filter((file) => file.endsWith('.yml'))

@@ -1,6 +1,9 @@
 import 'zx/globals';
 import { createHash } from 'node:crypto';
 import { error, showHelpAndExit } from 'lib/log';
+import { loadSecret } from 'lib/env';
+
+$.verbose = false;
 
 const email = argv._[0];
 
@@ -17,11 +20,9 @@ const domain = argv.domain ?? process.env.EMAIL_DOMAIN;
 if (!domain) {
 	error('EMAIL_DOMAIN env var not set');
 }
-let secret;
-try {
-	secret = await fs.readFile(path.resolve(os.homedir(), '.email'));
-} catch (err) {
-	error('Could not get secret');
+const secret = loadSecret('email');
+if (!secret) {
+	error('Could not load email secret');
 }
 
 const hash = createHash('md5')
@@ -31,7 +32,7 @@ const hash = createHash('md5')
 
 const output = `${email}.${hash}@${domain}`;
 if (argv.p) {
-	await $`echo ${output} | pbcopy`.quiet();
+	await $`echo ${output} | pbcopy`;
 	echo('Copied to 📋!');
 } else {
 	echo(output);
