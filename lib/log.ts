@@ -1,6 +1,8 @@
+import chalkStderr from 'chalk';
+
 export function debug(...text: unknown[]) {
 	if (argv.v || argv.verbose) {
-		echo(chalk.gray('Debug: ', ...text));
+		process.stderr.write(chalkStderr.grey('Debug:', ...text, '\n'));
 	}
 }
 
