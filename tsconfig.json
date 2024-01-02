@@ -17,6 +17,6 @@
 		"incremental": true,
 		"baseUrl": "."
 	},
-	"include": ["global.d.ts", "src/**/*.ts"],
+	"include": ["global.d.ts", "src/**/*.ts", "lib/**/*.ts"],
 	"exclude": ["node_modules"]
 }
