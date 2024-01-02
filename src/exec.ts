@@ -1,5 +1,4 @@
 import { getServiceEnv, setContext } from 'lib/docker';
-import { loadEnvVars } from 'lib/env';
 import { showHelpAndExit } from 'lib/log';
 
 if (argv._.length < 2) {
