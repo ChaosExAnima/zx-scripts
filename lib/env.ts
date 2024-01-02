@@ -16,22 +16,28 @@ function varCache<Value extends any>(
 
 export type EnvVarsMap = Map<string, string>;
 
-export async function loadEnvVars(required = true) {
+export async function loadEnvVars(required = true): Promise<EnvVarsMap> {
 	const envVars = new Map<string, string>();
 
 	try {
-		const envPaths = [
-			path.resolve(__dirname, '.env'),
-			path.resolve(homedir(), '.env'),
-		];
-		for await (const envPath of envPaths) {
+		const envPaths = [path.resolve(homedir(), '.config', 'scripts.env')];
+		for (const envPath of envPaths) {
 			debug('Getting env from path:', envPath);
+			try {
+				await fs.access(envPath);
+			} catch (err) {
+				debug('Creating env path:', envPath);
+				await fs.mkdir(path.dirname(envPath), { recursive: true });
+				await fs.writeFile(envPath, '', 'utf-8');
+				return envVars;
+			}
 			const rawEnv = await fs.readFile(envPath, 'utf-8');
 			for (const env of rawEnv.split('\n')) {
 				const [key, value] = env.trim().split('=', 2);
 				if (!key || !value) {
 					continue;
 				}
+				debug('Setting env var:', key, value);
 				process.env[key] = value;
 				envVars.set(key, value);
 			}

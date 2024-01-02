@@ -2,13 +2,13 @@ import { getServiceEnv, setContext } from 'lib/docker';
 import { loadEnvVars } from 'lib/env';
 import { showHelpAndExit } from 'lib/log';
 
-if (argv._.length !== 1) {
-	showHelpAndExit('Required args: [service]');
+if (argv._.length < 2) {
+	showHelpAndExit('Required args: [service] [...commands]');
 }
 
-const [service] = argv._;
+const [service, ...commands] = argv._;
 
 const details = await getServiceEnv(service);
 
-await $`docker run --rm -it --volumes-from ${details.Name}.${details.ID} chaosexanima/toolkit zsh`;
+await $`docker container exec -it ${details.Name}.${details.ID} ${commands}`;
 await setContext('default');

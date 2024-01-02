@@ -5,6 +5,6 @@ declare namespace NodeJS {
 	interface ProcessEnv {
 		HASS_SERVER: string;
 		HASS_TOKEN: string;
-		DOCKER_CONTEXT: string;
+		SWARM_MANAGER: string;
 	}
 }

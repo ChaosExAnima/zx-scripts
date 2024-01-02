@@ -1,4 +1,5 @@
-import { error } from './log';
+import { loadEnvVars } from './env';
+import { debug, error } from './log';
 
 function jsonLinesToArray(jsonLines: string) {
 	return JSON.parse(`[${jsonLines.split('\n').filter(Boolean).join(',')}]`);
@@ -6,16 +7,17 @@ function jsonLinesToArray(jsonLines: string) {
 
 export function setContext(context?: string) {
 	if (!context) {
-		if (!process.env.DOCKER_CONTEXT) {
-			error('No docker context specified');
+		if (!process.env.SWARM_MANAGER) {
+			error('No swarm manager specified');
 		}
-		context = process.env.DOCKER_CONTEXT;
+		context = process.env.SWARM_MANAGER;
 	}
-	return $`docker context use ${context}`.quiet();
+	debug('Setting docker context to', context);
+	process.env.DOCKER_CONTEXT = context;
 }
 
 export async function getServices(): Promise<DockerService[]> {
-	await setContext('central');
+	await setContext();
 	const raw = await $`docker service ls --format json`;
 	return jsonLinesToArray(raw.toString()) as DockerService[];
 }
@@ -58,4 +60,23 @@ interface DockerServiceDetails {
 	Name: string;
 	Node: string;
 	Ports: string;
+}
+
+export async function getServiceEnv(service: string) {
+	const details = await spinner('Getting service', async () => {
+		await loadEnvVars();
+		await validateService(service);
+		return getServiceDetails(service);
+	});
+
+	if (details.length === 0) {
+		error(`Service ${service} not found or not running`);
+	} else if (details.length > 1) {
+		error('Multiple services found');
+	}
+	if (process.env.DOCKER_CONTEXT !== details[0].Node) {
+		await setContext(details[0].Node);
+	}
+
+	return details[0];
 }
