@@ -16,11 +16,13 @@ function varCache<Value extends any>(
 
 export type EnvVarsMap = Map<string, string>;
 
+const CONFIG_PATH = path.resolve(homedir(), '.config', 'scripts.env');
+
 export async function loadEnvVars(required = true): Promise<EnvVarsMap> {
 	const envVars = new Map<string, string>();
 
 	try {
-		const envPaths = [path.resolve(homedir(), '.config', 'scripts.env')];
+		const envPaths = [CONFIG_PATH];
 		for (const envPath of envPaths) {
 			debug('Getting env from path:', envPath);
 			try {
@@ -38,7 +40,9 @@ export async function loadEnvVars(required = true): Promise<EnvVarsMap> {
 					continue;
 				}
 				debug('Setting env var:', key, value);
-				process.env[key] = value;
+				if (!key.startsWith('SECRET_')) {
+					process.env[key] = value;
+				}
 				envVars.set(key, value);
 			}
 		}
@@ -62,18 +66,36 @@ export async function saveEnv(
 	} else {
 		envVars.delete(key);
 	}
+
+	// Get config string
+	let envString = '';
+	for (const [envKey, envValue] of envVars) {
+		envString += `${envKey}=${envValue}\n`;
+	}
+
+	try {
+		await fs.writeFile(CONFIG_PATH, envString, 'utf-8');
+	} catch (err) {
+		error('Failed to save environment variables to config path');
+	}
+
 	return envVars;
 }
 
+// Save secrets with the following command: `security add-generic-password -s [name] -w "[secret]"`
+
 export async function loadSecret(name: string) {
 	try {
-		return await fs.readFile(
-			path.resolve(os.homedir(), `.${name}`),
-			'utf-8',
-		);
+		const rawSecret = await $`security find-generic-password -s ${name} -w`;
+		const secret = rawSecret.stdout.trim();
+		if (!secret) {
+			throw new Error(`Could not find secret: ${name}`);
+		}
+		return secret;
 	} catch (err) {
 		error('Could not get secret');
 	}
+	return '';
 }
 
 let isOpValid = false;
