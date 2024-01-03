@@ -28,7 +28,7 @@
 		"zx": "^7.2.0"
 	},
 	"volta": {
-		"node": "19.8.0"
+		"node": "20.10.0"
 	},
 	"dependencies": {
 		"@1password/op-js": "^0.1.8",
