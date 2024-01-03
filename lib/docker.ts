@@ -5,7 +5,7 @@ function jsonLinesToArray(jsonLines: string) {
 	return JSON.parse(`[${jsonLines.split('\n').filter(Boolean).join(',')}]`);
 }
 
-export function setContext(context?: string) {
+export async function setContext(context?: string) {
 	if (!context) {
 		if (!process.env.SWARM_MANAGER) {
 			error('No swarm manager specified');
@@ -18,7 +18,7 @@ export function setContext(context?: string) {
 
 export async function getServices(): Promise<DockerService[]> {
 	await setContext();
-	const raw = await $`docker service ls --format json`;
+	const raw = await $`docker service ls --format json`.quiet();
 	return jsonLinesToArray(raw.toString()) as DockerService[];
 }
 

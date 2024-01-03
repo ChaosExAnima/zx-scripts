@@ -1,4 +1,4 @@
-import { getServiceEnv, setContext } from 'lib/docker';
+import { getServiceEnv } from 'lib/docker';
 import { showHelpAndExit } from 'lib/log';
 
 if (argv._.length < 2) {
@@ -10,4 +10,3 @@ const [service, ...commands] = argv._;
 const details = await getServiceEnv(service);
 
 await $`docker container exec -it ${details.Name}.${details.ID} ${commands}`;
-await setContext('default');

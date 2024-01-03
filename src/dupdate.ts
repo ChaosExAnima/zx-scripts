@@ -1,8 +1,6 @@
-import 'zx/globals';
+import { getServices } from 'lib/docker';
 import { loadEnvVars } from 'lib/env';
 import { showHelpAndExit } from 'lib/log';
-
-$.verbose = false;
 
 const args = argv._;
 const doAll = argv.a || argv.all;
@@ -15,20 +13,11 @@ if (!args.length && !doAll) {
 	);
 }
 
-await loadEnvVars(false);
+await loadEnvVars();
 
-if (process.env.DOCKER_CONTEXT) {
-	await $`docker context use ${process.env.DOCKER_CONTEXT}`;
-}
+const services = await getServices();
 
-const services = (
-	await $`docker service ls --format "{{.Name}} {{.Image}} {{.Replicas}}"`
-).stdout
-	.trim()
-	.split('\n')
-	.map((l) => l.split(' ', 3));
-
-for (const [name, image, replicas] of services) {
+for (const { Name: name, Image: image, Replicas: replicas } of services) {
 	if (replicas.includes('0') || (!doAll && !args.includes(name))) {
 		continue;
 	}
@@ -39,6 +28,6 @@ for (const [name, image, replicas] of services) {
 
 	await spinner(
 		`Restarting service ${name}...`,
-		() => $`docker service update --image ${image} ${name}`,
+		() => $`docker service update --image ${image} --force ${name}`,
 	);
 }

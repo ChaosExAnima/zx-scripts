@@ -9,7 +9,7 @@
 		"build": "rm -rf bin && esbuild src/*.ts --bundle --outdir=bin --outbase=src --platform=node --format=esm --banner:js=\"#!/usr/bin/env /Users/echo/.volta/bin/zx\" --external:zx",
 		"watch": "pnpm build --watch",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"link": "find bin -type f -exec sh -c 'ln -s $PWD/{} ~/bin/$(basename {} .js)' \\;"
+		"link": "chmod +x bin/* && find bin -type f -exec sh -c 'ln -s $PWD/{} ~/bin/$(basename {} .js)' \\;"
 	},
 	"keywords": [],
 	"author": "",
