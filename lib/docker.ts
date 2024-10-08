@@ -63,11 +63,10 @@ interface DockerServiceDetails {
 }
 
 export async function getServiceEnv(service: string) {
-	const details = await spinner('Getting service', async () => {
-		await loadEnvVars();
-		await validateService(service);
-		return getServiceDetails(service);
-	});
+	await loadEnvVars();
+	const [details] = await spinner('Getting service', () =>
+		Promise.all([getServiceDetails(service), validateService(service)]),
+	);
 
 	if (details.length === 0) {
 		error(`Service ${service} not found or not running`);
