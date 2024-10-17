@@ -20,25 +20,13 @@ if (directory) {
 
 const details = await getServiceEnv(service);
 
-const destFileName = `${directory || process.cwd()}/${details.Name}.tar`;
-const destStream = createWriteStream(destFileName);
+const destFileName = `${directory || process.cwd()}/${details.Name}.tar.gz`;
 
-let size = 0;
-const progressStream = new Transform({
-	transform(chunk, _encoding, callback) {
-		if (chunk instanceof Buffer) {
-			size += chunk.byteLength;
-		} else if (typeof chunk === 'string') {
-			size += chunk.length;
-		}
-		console.log(`\x1b[FTransferred: ${size.toLocaleString()} bytes`);
-		callback(null, chunk);
-	},
-});
-progressStream.pipe(destStream);
-
-echo('Transferred: 0 bytes');
-await $`docker run --rm --volumes-from=${details.Name}.${details.ID} ubuntu tar cvf - ${path}`
-	.quiet()
-	.pipe(progressStream);
+const node = details.Node;
+const targetPath = '/backup/tmp.tar.gz';
+const tmpDir = `/tmp/${details.Name}`;
+await $`ssh ${node} mkdir -p ${tmpDir}`;
+await $`docker run --rm --volumes-from=${details.Name}.${details.ID} -v ${tmpDir}:/backup ubuntu tar cvzf ${targetPath} ${path}`;
+await $`rsync -zvhP ${node}:${tmpDir}/tmp.tar.gz ${destFileName}`;
+await $`ssh ${node} rm -rf ${tmpDir}`;
 echo(chalk.greenBright.bold(`Saved to ${destFileName} 🎉`));
