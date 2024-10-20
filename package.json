@@ -6,31 +6,32 @@
 	"main": "index.js",
 	"scripts": {
 		"preinstall": "npx -y only-allow pnpm",
-		"build": "rm -rf bin && esbuild src/*.ts --bundle --outdir=bin --outbase=src --platform=node --format=esm --banner:js=\"#!/usr/bin/env /Users/echo/.volta/bin/zx\" --external:zx",
+		"build": "tsx build.ts",
 		"watch": "pnpm build --watch",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"link": "chmod +x bin/* && find bin -type f -exec sh -c 'ln -s $PWD/{} ~/bin/$(basename {} .js)' \\;"
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"@types/minimist": "^1.2.5",
-		"@types/node": "^20.10.6",
+		"@types/node": "^22",
 		"chalk": "^5.3.0",
-		"esbuild": "^0.19.11",
-		"eslint": "^8.56.0",
+		"dotenv": "^16.4.5",
+		"esbuild": "^0.24",
+		"eslint": "^9",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-unused-imports": "^2.0.0",
-		"prettier": "^3.1.1",
-		"typescript": "^5.3.3",
-		"zx": "^7.2.3"
+		"eslint-plugin-unused-imports": "^4",
+		"prettier": "^3.3.3",
+		"tsx": "^4.19.1",
+		"typescript": "^5",
+		"zx": "^8"
 	},
 	"volta": {
 		"node": "20.10.0"
 	},
 	"dependencies": {
-		"@1password/op-js": "^0.1.11",
+		"@1password/op-js": "^0.1.13",
 		"memoize-one": "^6.0.0"
 	}
 }
