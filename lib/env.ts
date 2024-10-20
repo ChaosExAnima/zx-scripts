@@ -112,5 +112,8 @@ export async function loadFromOp(name: string): Promise<string> {
 		error(err);
 	}
 	const item = op.item.get(name);
-	return item.fields?.at(0)?.value || '';
+	if ('fields' in item) {
+		return item.fields?.at(0)?.value || '';
+	}
+	return '';
 }
