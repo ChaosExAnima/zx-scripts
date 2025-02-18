@@ -62,6 +62,70 @@ interface DockerServiceDetails {
 	Ports: string;
 }
 
+type Labels = {
+	[key: string]: string;
+};
+
+interface Mount {
+	Type: 'volume';
+	Source: string;
+	Target: string;
+	VolumeOptions: {
+		Labels: Labels;
+	};
+}
+
+interface Secret {
+	File: {
+		Name: string;
+		UID: string;
+		GID: string;
+		Mode: number;
+	};
+	SecretID: string;
+	SecretName: string;
+}
+
+interface Network {
+	Target: string;
+	Aliases: string[];
+}
+
+interface ServiceSpec {
+	Name: string;
+	Labels: Labels;
+	TaskTemplate: {
+		ContainerSpec: {
+			Image: string;
+			Labels: Labels;
+			Env: string[];
+		};
+		Mounts: Mount[];
+		Secrets: Secret[];
+	};
+	Placement: {
+		Constraints: string[];
+		Networks: Network[];
+	};
+}
+
+export interface ServiceInfo {
+	ID: string;
+	Version: {
+		Index: number;
+	};
+	CreatedAt: string;
+	UpdatedAt: string;
+	Spec: ServiceSpec;
+	PreviousSpec: ServiceSpec;
+}
+
+export async function inspectService(service: string) {
+	const proc = await $`docker service inspect ${service}`;
+	const services = JSON.parse(proc.toString()) as ServiceInfo[];
+	return services[0];
+}
+
 export async function getServiceEnv(service: string) {
 	await loadEnvVars();
 	const [details] = await spinner('Getting service', () =>

@@ -1,8 +1,6 @@
 import { getServiceEnv } from 'lib/docker';
-import { error, line, showHelpAndExit } from 'lib/log';
-import { createWriteStream } from 'node:fs';
+import { error, showHelpAndExit } from 'lib/log';
 import { stat } from 'node:fs/promises';
-import { Transform } from 'node:stream';
 
 if (argv._.length > 2 || argv._.length < 1) {
 	showHelpAndExit('Required args: [service]:[path] <directory>');

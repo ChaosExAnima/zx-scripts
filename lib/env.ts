@@ -3,17 +3,6 @@ import path from 'node:path';
 import { debug, error } from './log';
 import { homedir } from 'node:os';
 
-const cacheMap = new Map<string, any>();
-function varCache<Value extends any>(
-	key: string,
-	value?: Value,
-): Value | undefined {
-	if (value !== undefined) {
-		cacheMap.set(key, value);
-	}
-	return cacheMap.get(key);
-}
-
 export type EnvVarsMap = Map<string, string>;
 
 const CONFIG_PATH = path.resolve(homedir(), '.config', 'scripts.env');
