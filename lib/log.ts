@@ -42,32 +42,30 @@ export function writeIfTrue(conditional: boolean, ...messages: string[]) {
 	return '';
 }
 
-type ArgType =
-	| {
-			name: string;
-			optional?: boolean;
-			help?: string;
-	  }
-	| string;
+type ArgType = {
+	name: string;
+	optional?: boolean;
+	help?: string;
+};
 
-type FlagType =
-	| {
-			name: string;
-			alias?: string;
-			help?: string;
-	  }
-	| string;
+type FlagType = {
+	name: string;
+	alias?: string;
+	help?: string;
+};
 
 interface ArgsAndHelp {
-	args: ArgType[];
+	args: (ArgType | string)[];
 	help?: string | string[];
-	flags?: FlagType[];
+	flags?: (FlagType | string)[];
+	usage?: string;
 }
 
 export function checkArgsOrShowHelp({
 	args,
 	help = [],
 	flags = [],
+	usage,
 }: ArgsAndHelp) {
 	const normalizedArgs = args.map((arg) =>
 		typeof arg === 'string' ? { name: arg } : arg,
@@ -85,16 +83,16 @@ export function checkArgsOrShowHelp({
 				...(typeof help === 'string' ? [help] : help),
 				'',
 			),
+			writeIfTrue(!!usage, `Usage: ${process.argv[2]} ${usage}`, ''),
 			writeIfTrue(
 				args.length > 0,
 				'Arguments:',
 				...normalizedArgs.map((arg) => {
-					const optional = arg.optional ? '' : '*';
 					const help = arg.help ? `: ${arg.help}` : '';
-					return `  ${arg.name}${optional}${help}`;
+					return `  ${argFormat(arg)}${help}`;
 				}),
+				'',
 			),
-			'',
 			writeIfTrue(
 				flags.length > 0,
 				'Flags:',
@@ -116,4 +114,8 @@ export function checkArgsOrShowHelp({
 			{} as { [key: string]: string },
 		),
 	};
+}
+
+function argFormat(arg: ArgType) {
+	return arg.optional ? `${arg.name} (optional)` : arg.name;
 }

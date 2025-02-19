@@ -23,6 +23,7 @@ const {
 		},
 	],
 	help: 'Rotate Docker secret or config',
+	usage: 'secret_name [secret_file] [-c|--config]',
 });
 
 await loadEnvVars();
