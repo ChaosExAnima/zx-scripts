@@ -18,6 +18,10 @@ export function multiline(...strings: (string | string[])[]) {
 	echo(strings.flat().join('\n'));
 }
 
+export function warning(...text: unknown[]) {
+	echo(chalk.yellow('Warning:'), ...text);
+}
+
 export function error(message: any, code = 1) {
 	if (message instanceof Error) {
 		message = message.message;
@@ -29,4 +33,33 @@ export function error(message: any, code = 1) {
 export function showHelpAndExit(...messages: Parameters<typeof multiline>) {
 	multiline(...messages);
 	process.exit();
+}
+
+type ArgType =
+	| {
+			name: string;
+			optional?: boolean;
+			type?: 'string' | 'number' | 'boolean';
+	  }
+	| string;
+
+export function checkArgsOrShowHelp(
+	args: ArgType[],
+	...messages: Parameters<typeof multiline>
+) {
+	if (
+		argv._.length !==
+		args.filter((arg) => (typeof arg === 'string' ? true : !arg.optional))
+			.length
+	) {
+		showHelpAndExit(
+			...messages,
+			'Args:',
+			...args.map((arg) => (typeof arg === 'string' ? arg : arg.name)),
+		);
+	}
+	return args.map((arg, index) => {
+		const value = argv._[index];
+		return value;
+	});
 }
