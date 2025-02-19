@@ -35,30 +35,55 @@ export function showHelpAndExit(...messages: Parameters<typeof multiline>) {
 	process.exit();
 }
 
+export function writeIfTrue(conditional: boolean, ...messages: string[]) {
+	if (conditional) {
+		return messages;
+	}
+	return '';
+}
+
 type ArgType =
 	| {
 			name: string;
 			optional?: boolean;
 			type?: 'string' | 'number' | 'boolean';
+			help?: string;
 	  }
 	| string;
 
-export function checkArgsOrShowHelp(
-	args: ArgType[],
-	...messages: Parameters<typeof multiline>
-) {
+interface ArgsAndHelp {
+	args: ArgType[];
+	help?: string | string[];
+	flags?: string[];
+}
+
+export function checkArgsOrShowHelp({
+	args,
+	help = [],
+	flags = [],
+}: ArgsAndHelp): string[] {
+	const normalizedArgs = args.map((arg) =>
+		typeof arg === 'string' ? { name: arg } : arg,
+	);
 	if (
-		argv._.length !==
-		args.filter((arg) => (typeof arg === 'string' ? true : !arg.optional))
-			.length
+		argv._.length !== normalizedArgs.filter((arg) => !arg.optional).length
 	) {
+		// TODO: There is probably a library for this.
 		showHelpAndExit(
-			...messages,
-			'Args:',
-			...args.map((arg) => (typeof arg === 'string' ? arg : arg.name)),
+			...(typeof help === 'string' ? [help] : help),
+			writeIfTrue(
+				args.length > 0,
+				'Arguments:',
+				...normalizedArgs.map((arg) => {
+					const optional = arg.optional ? '' : '*';
+					const help = arg.help ? `: ${arg.help}` : '';
+					return `  ${arg.name}${optional}${help}`;
+				}),
+			),
+			writeIfTrue(flags.length > 0, 'Flags:', ...flags),
 		);
 	}
-	return args.map((arg, index) => {
+	return args.map((_arg, index) => {
 		const value = argv._[index];
 		return value;
 	});
