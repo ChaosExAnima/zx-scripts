@@ -1,3 +1,4 @@
+import { item } from '@1password/op-js';
 import { loadEnvVars } from './env';
 import { debug, error } from './log';
 
@@ -142,4 +143,20 @@ export async function getServiceEnv(service: string) {
 	}
 
 	return details[0];
+}
+
+export function getSecret(name: string, field = 'password') {
+	return new Promise<string>((res, rej) => {
+		try {
+			const result = item.get(name, {
+				fields: { label: [field] },
+			});
+			if (Array.isArray(result) || !('value' in result)) {
+				throw new Error(`Secret ${name} has no value`);
+			}
+			res(result.value);
+		} catch (err) {
+			rej(err);
+		}
+	});
 }
