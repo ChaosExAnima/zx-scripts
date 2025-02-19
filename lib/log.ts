@@ -46,7 +46,14 @@ type ArgType =
 	| {
 			name: string;
 			optional?: boolean;
-			type?: 'string' | 'number' | 'boolean';
+			help?: string;
+	  }
+	| string;
+
+type FlagType =
+	| {
+			name: string;
+			alias?: string;
 			help?: string;
 	  }
 	| string;
@@ -54,23 +61,30 @@ type ArgType =
 interface ArgsAndHelp {
 	args: ArgType[];
 	help?: string | string[];
-	flags?: string[];
+	flags?: FlagType[];
 }
 
 export function checkArgsOrShowHelp({
 	args,
 	help = [],
 	flags = [],
-}: ArgsAndHelp): string[] {
+}: ArgsAndHelp) {
 	const normalizedArgs = args.map((arg) =>
 		typeof arg === 'string' ? { name: arg } : arg,
+	);
+	const normalizedFlags = flags.map((flag) =>
+		typeof flag === 'string' ? { name: flag } : flag,
 	);
 	if (
 		argv._.length !== normalizedArgs.filter((arg) => !arg.optional).length
 	) {
 		// TODO: There is probably a library for this.
 		showHelpAndExit(
-			...(typeof help === 'string' ? [help] : help),
+			writeIfTrue(
+				!!help,
+				...(typeof help === 'string' ? [help] : help),
+				'',
+			),
 			writeIfTrue(
 				args.length > 0,
 				'Arguments:',
@@ -80,11 +94,26 @@ export function checkArgsOrShowHelp({
 					return `  ${arg.name}${optional}${help}`;
 				}),
 			),
-			writeIfTrue(flags.length > 0, 'Flags:', ...flags),
+			'',
+			writeIfTrue(
+				flags.length > 0,
+				'Flags:',
+				...normalizedFlags.map((flag) => {
+					const alias = flag.alias ? `-${flag.alias}, ` : '';
+					const help = flag.help ? `: ${flag.help}` : '';
+					return `  ${alias}--${flag.name}${help}`;
+				}),
+			),
 		);
 	}
-	return args.map((_arg, index) => {
-		const value = argv._[index];
-		return value;
-	});
+	return {
+		args: args.map((_, i) => argv._[i]),
+		flags: normalizedFlags.reduce(
+			(carry, { alias, name }) => ({
+				...carry,
+				[name]: argv[alias || name] ?? argv[name],
+			}),
+			{} as { [key: string]: string },
+		),
+	};
 }

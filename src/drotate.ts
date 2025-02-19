@@ -1,24 +1,35 @@
 import { warn } from 'console';
 import { inspectService, ServiceInfo } from 'lib/docker';
 import { loadEnvVars } from 'lib/env';
-import { error, showHelpAndExit } from 'lib/log';
+import { checkArgsOrShowHelp, error, showHelpAndExit } from 'lib/log';
 
-if (argv._.length === 0) {
-	showHelpAndExit(
-		'Required args: secret_name [secret_file] [-c|--config]',
-		'',
-		'Flags:',
-		' c: Rotate config file instead of secret',
-	);
-}
-
-const [secretName, secretFile] = argv._;
+const {
+	args: [secretName, secretFile],
+	flags: { config },
+} = checkArgsOrShowHelp({
+	args: [
+		'secret_name',
+		{
+			name: 'secret_file',
+			optional: true,
+			help: 'File path of secret source',
+		},
+	],
+	flags: [
+		{
+			name: 'config',
+			alias: 'c',
+			help: 'Rotate config file instead of secret',
+		},
+	],
+	help: 'Rotate Docker secret or config',
+});
 
 await loadEnvVars();
 
 $.verbose = true;
 
-const type = argv.c || argv.config ? 'config' : 'secret';
+const type = config ? 'config' : 'secret';
 
 async function fetchServicesWithSecret() {
 	try {

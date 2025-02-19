@@ -2,7 +2,9 @@ import { getSecret, setContext } from 'lib/docker';
 import { loadEnvVars } from 'lib/env';
 import { bold, checkArgsOrShowHelp, error, warning } from 'lib/log';
 
-const [name, secretName] = checkArgsOrShowHelp({
+const {
+	args: [name, secretName],
+} = checkArgsOrShowHelp({
 	args: ['name', 'secret'],
 	help: 'Sync Docker secret and 1Password',
 });
