@@ -54,12 +54,27 @@ type FlagType = {
 	help?: string;
 };
 
+type OrString<T> = T | string;
+
 interface ArgsAndHelp {
-	args: (ArgType | string)[];
+	args: OrString<ArgType>[];
 	help?: string | string[];
-	flags?: (FlagType | string)[];
+	flags?: OrString<FlagType>[];
 	usage?: string;
 }
+
+export const commonFlags = [
+	{
+		name: 'verbose',
+		alias: 'v',
+		help: 'Enable verbose output',
+	},
+	{
+		name: 'quiet',
+		alias: 'q',
+		help: 'Disable output (not yet implemented)',
+	},
+] satisfies FlagType[];
 
 export function checkArgsOrShowHelp({
 	args,
@@ -76,7 +91,7 @@ export function checkArgsOrShowHelp({
 	if (
 		argv._.length !== normalizedArgs.filter((arg) => !arg.optional).length
 	) {
-		// TODO: There is probably a library for this.
+		// TODO: Replace with Commander.js!
 		showHelpAndExit(
 			writeIfTrue(
 				!!help,
@@ -102,6 +117,7 @@ export function checkArgsOrShowHelp({
 					return `  ${alias}--${flag.name}${help}`;
 				}),
 			),
+			// TODO: Add global flags but after implementing Commander.js.
 		);
 	}
 	return {
