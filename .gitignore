@@ -2,3 +2,5 @@ node_modules/
 bin/
 .env
 *.code-workspace
+.DS_Store
+.vscode/settings.json

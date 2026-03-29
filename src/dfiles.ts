@@ -1,5 +1,5 @@
 import { getServiceEnv } from 'lib/docker';
-import { showHelpAndExit } from 'lib/log';
+import { debug, showHelpAndExit } from 'lib/log';
 
 if (argv._.length !== 1) {
 	showHelpAndExit(
@@ -25,4 +25,8 @@ if (argv.b) {
 }
 flags.push('chaosexanima/toolkit', 'zsh');
 
-await $`docker run ${flags}`;
+debug('flags: docker run', ...flags);
+
+await $({
+	stdio: ['inherit', 'inherit', 'inherit'],
+})`docker run ${flags}`;

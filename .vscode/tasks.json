@@ -14,6 +14,13 @@
 			"group": "build",
 			"problemMatcher": [],
 			"label": "Build"
+		},
+		{
+			"type": "npm",
+			"script": "fix-perms",
+			"problemMatcher": [],
+			"label": "Fix permissions",
+			"detail": "chmod +x ./lib/* ./bin/*"
 		}
 	]
 }

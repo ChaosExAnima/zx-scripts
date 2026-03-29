@@ -4,10 +4,10 @@ import { Plugin } from 'esbuild';
 import { log, warn } from 'console';
 import path from 'path';
 import { argv } from 'process';
-
-import 'dotenv/config';
 import chalk from 'chalk';
 import { performance } from 'perf_hooks';
+
+import 'dotenv/config';
 
 const linkPath = process.env.LINK_PATH;
 const outPath = path.resolve(process.cwd(), 'bin');
@@ -64,7 +64,7 @@ const ctx = await esbuild.context({
 	platform: 'node',
 	format: 'esm',
 	banner: {
-		js: '#!/usr/bin/env /Users/echo/.volta/bin/zx',
+		js: '#!/usr/bin/env zx',
 	},
 	external: ['zx'],
 	plugins: [linkPlugin],

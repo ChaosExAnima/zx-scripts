@@ -129,6 +129,7 @@ export async function inspectService(service: string) {
 
 export async function getServiceEnv(service: string) {
 	await loadEnvVars();
+	await setContext();
 	const [details] = await spinner('Getting service', () =>
 		Promise.all([getServiceDetails(service), validateService(service)]),
 	);
